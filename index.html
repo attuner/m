@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Nexus P2P Messenger</title>
   
   <!-- Tailwind CSS CDN -->
@@ -15,7 +15,7 @@
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 
   <!-- PWA Manifest embedded via Data URI -->
-  <link rel="manifest" href="data:application/manifest+json;utf-8,%7B%22name%22%3A%22Nexus%20P2P%20Messenger%22%2C%22short_name%22%3A%22Nexus%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230f172a%22%2C%22theme_color%22%3A%22%236366f1%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fplacehold.co%2F192x192%2F6366f1%2Fffffff%3Ftext%3DNexus%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
+  <link rel="manifest" href="data:application/manifest+json;utf-8,%7B%22name%22%3A%22Nexus%20P2P%20Messenger%22%2C%22short_name%22%3A%22Nexus%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23f8fafc%22%2C%22theme_color%22%3A%22%234f46e5%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fplacehold.co%2F192x192%2F6366f1%2Fffffff%3Ftext%3DNexus%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
 
   <script>
     tailwind.config = {
@@ -26,16 +26,10 @@
             brand: {
               50: '#eef2ff',
               100: '#e0e7ff',
+              200: '#c7d2fe',
               500: '#6366f1',
               600: '#4f46e5',
               700: '#4338ca',
-            },
-            dark: {
-              900: '#0b0f19',
-              800: '#111827',
-              750: '#182234',
-              700: '#1f2937',
-              600: '#374151'
             }
           }
         }
@@ -45,31 +39,38 @@
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
-    body {
+    
+    :root {
+      --app-height: 100dvh;
+      --app-width: 100dvw;
+    }
+
+    html, body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      overscroll-behavior-y: none;
+      overscroll-behavior: none;
+      height: 100%;
+      height: var(--app-height);
+      width: 100%;
+      width: var(--app-width);
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      margin: 0;
+      overflow: hidden;
+      background-color: #f8fafc;
     }
     
-    /* Sleek custom scrollbars */
     ::-webkit-scrollbar {
-      width: 5px;
-      height: 5px;
+      width: 6px;
+      height: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.05);
+      background: transparent;
     }
     ::-webkit-scrollbar-thumb {
-      background: rgba(148, 163, 184, 0.3);
+      background: rgba(148, 163, 184, 0.4);
       border-radius: 9999px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: rgba(148, 163, 184, 0.5);
-    }
-
-    .glass {
-      background: rgba(17, 24, 39, 0.75);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: rgba(148, 163, 184, 0.7);
     }
 
     .recording-pulse {
@@ -83,42 +84,47 @@
     }
   </style>
 </head>
-<body class="bg-dark-900 text-slate-100 h-screen w-screen overflow-hidden flex flex-col antialiased select-none">
+<body class="bg-slate-50 text-slate-800 h-full w-full overflow-hidden flex flex-col antialiased select-none">
 
-  <div class="flex h-full w-full relative">
+  <div class="flex h-full w-full overflow-hidden relative">
     
-    <!-- LEFT SIDEBAR: User info, Device ID, Search, and Contacts list -->
-    <aside id="sidebar" class="w-full md:w-80 lg:w-96 flex-shrink-0 bg-dark-800 border-r border-dark-700 flex flex-col h-full z-20 transition-all duration-300">
+    <!-- LEFT SIDEBAR: Device ID, Controls, Contacts List -->
+    <aside id="sidebar" class="w-full md:w-80 lg:w-96 flex-shrink-0 bg-white border-r border-slate-200 flex flex-col h-full z-20 transition-all duration-300">
       
       <!-- Top Profile & Device Bar -->
-      <div class="p-4 border-b border-dark-700 bg-dark-800/80 backdrop-blur flex flex-col gap-3">
+      <div class="p-3 sm:p-4 border-b border-slate-200 bg-white flex flex-col gap-2.5">
         <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center font-bold text-white shadow-lg shadow-brand-500/20">
-              <i class="fa-solid fa-bolt"></i>
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center font-bold text-white shadow-md shadow-brand-500/20">
+              <i class="fa-solid fa-bolt text-sm"></i>
             </div>
             <div>
-              <h1 class="font-bold text-base tracking-tight text-white leading-tight">Nexus P2P</h1>
-              <div class="flex items-center gap-1.5 text-xs text-emerald-400">
+              <h1 class="font-bold text-sm sm:text-base tracking-tight text-slate-900 leading-tight">Nexus P2P</h1>
+              <div class="flex items-center gap-1.5 text-[11px] text-emerald-600 font-medium">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                <span class="font-medium" id="p2p-status">Online (Device Ready)</span>
+                <span id="p2p-status">Online (Device Ready)</span>
               </div>
             </div>
           </div>
           
-          <button id="btn-open-add-peer" class="px-3 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-xs font-semibold text-white transition flex items-center gap-1.5 shadow-md shadow-brand-600/30">
-            <i class="fa-solid fa-user-plus"></i>
-            <span>Add Peer</span>
-          </button>
+          <div class="flex items-center gap-1.5">
+            <button id="btn-open-add-peer" class="px-2.5 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-500 active:scale-95 text-xs font-semibold text-white transition flex items-center gap-1.5 shadow-sm">
+              <i class="fa-solid fa-user-plus"></i>
+              <span class="hidden sm:inline">Add</span>
+            </button>
+            <button id="btn-wipe-device" title="Delete All Device Data" class="p-2 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 active:scale-95 transition text-xs border border-slate-200">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
         </div>
 
-        <!-- Persistent Device ID Widget with Quick Copy -->
-        <div class="bg-dark-900/90 border border-dark-700/80 rounded-xl p-2.5 flex items-center justify-between text-xs">
+        <!-- Persistent Device ID Widget -->
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-2 sm:p-2.5 flex items-center justify-between text-xs">
           <div class="flex flex-col truncate pr-2">
-            <span class="text-[10px] text-slate-400 uppercase font-semibold tracking-wider">My Permanent Device ID</span>
-            <span id="my-device-id" class="font-mono text-slate-200 select-all truncate font-medium">Generating ID...</span>
+            <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Device ID</span>
+            <span id="my-device-id" class="font-mono text-slate-700 select-all truncate font-semibold">Generating ID...</span>
           </div>
-          <button id="btn-copy-device-id" title="Copy Device ID" class="p-2 hover:bg-dark-700 active:scale-95 text-slate-300 hover:text-white rounded-lg transition-all flex items-center gap-1">
+          <button id="btn-copy-device-id" title="Copy Device ID" class="px-2.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-100 active:scale-95 text-slate-600 rounded-lg transition-all flex items-center gap-1">
             <i class="fa-regular fa-copy"></i>
             <span class="text-[11px] font-medium hidden sm:inline">Copy</span>
           </button>
@@ -129,135 +135,130 @@
       <div class="px-3 pt-3 pb-1">
         <div class="relative">
           <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-          <input id="search-peers-input" type="text" placeholder="Search contacts or messages..." 
-            class="w-full bg-dark-900/60 border border-dark-700/60 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500 transition" />
+          <input id="search-peers-input" type="text" placeholder="Search contacts..." 
+            class="w-full bg-slate-100 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-500 focus:bg-white transition" />
         </div>
       </div>
 
       <!-- Contacts / Active Peer Threads List -->
       <div class="flex-1 overflow-y-auto px-2 py-2 space-y-1" id="contacts-list-container">
-        <!-- Dynamically filled with contacts from IndexedDB -->
-        <div class="text-center py-12 px-4 text-slate-500 text-xs">
+        <div class="text-center py-12 px-4 text-slate-400 text-xs">
           <i class="fa-regular fa-comments text-3xl mb-3 opacity-40"></i>
-          <p>No chats yet.<br>Click "Add Peer" to start chatting using their Device ID!</p>
+          <p>No chats yet.<br>Click "Add" to start chatting using a Device ID!</p>
         </div>
       </div>
 
       <!-- Footer Info -->
-      <div class="p-3 border-t border-dark-700/60 text-[11px] text-slate-400 flex items-center justify-between bg-dark-850">
+      <div class="p-3 border-t border-slate-200 text-[11px] text-slate-500 flex items-center justify-between bg-slate-50">
         <span class="flex items-center gap-1.5">
-          <i class="fa-solid fa-shield-halved text-emerald-400"></i> Peer-to-Peer Encrypted
+          <i class="fa-solid fa-shield-halved text-emerald-600"></i> End-to-End P2P
         </span>
-        <span id="pwa-install-banner" class="hidden cursor-pointer text-brand-400 font-semibold hover:underline">
-          <i class="fa-solid fa-download mr-1"></i> Install App
+        <span id="pwa-install-banner" class="hidden cursor-pointer text-brand-600 font-semibold hover:underline">
+          <i class="fa-solid fa-download mr-1"></i> Install
         </span>
       </div>
     </aside>
 
     <!-- RIGHT MAIN: Active Chat Conversation or Empty State -->
-    <main id="chat-main" class="flex-1 flex flex-col h-full bg-dark-900 relative">
+    <main id="chat-main" class="flex-1 flex flex-col h-full bg-slate-100 relative min-w-0">
       
-      <!-- Welcome Empty Placeholder (when no contact is selected) -->
+      <!-- Welcome Empty Placeholder -->
       <div id="no-chat-selected" class="flex-1 flex flex-col items-center justify-center p-6 text-center z-10">
-        <div class="w-20 h-20 rounded-3xl bg-dark-800 border border-dark-700 flex items-center justify-center text-3xl text-brand-500 shadow-2xl mb-4">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-white border border-slate-200 flex items-center justify-center text-2xl sm:text-3xl text-brand-600 shadow-sm mb-4">
           <i class="fa-solid fa-paper-plane"></i>
         </div>
-        <h2 class="text-xl font-bold text-white mb-2">Decentralized Direct Messaging</h2>
-        <p class="text-slate-400 text-xs sm:text-sm max-w-md mb-6 leading-relaxed">
-          Zero servers, zero surveillance. All messages, voice memos, files, and calls are transferred peer-to-peer and permanently stored only on this device.
+        <h2 class="text-lg sm:text-xl font-bold text-slate-800 mb-2">Decentralized Direct Messaging</h2>
+        <p class="text-slate-500 text-xs sm:text-sm max-w-md mb-6 leading-relaxed">
+          Zero central servers. All messages, voice memos, and files transfer direct P2P and persist strictly inside local device storage.
         </p>
-        <button id="btn-empty-add-peer" class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition shadow-lg shadow-brand-600/30 flex items-center gap-2">
+        <button id="btn-empty-add-peer" class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition shadow-sm flex items-center gap-2">
           <i class="fa-solid fa-plus"></i> Connect to Device ID
         </button>
       </div>
 
-      <!-- Active Conversation Area (hidden by default) -->
-      <div id="active-chat-container" class="hidden flex-1 flex flex-col h-full">
+      <!-- Active Conversation Area -->
+      <div id="active-chat-container" class="hidden flex-1 flex flex-col h-full min-w-0 overflow-hidden">
         
         <!-- Conversation Header -->
-        <div class="h-16 px-4 bg-dark-800/90 border-b border-dark-700 flex items-center justify-between shrink-0 z-10 backdrop-blur">
-          <div class="flex items-center gap-3">
-            <button id="btn-back-to-list" class="md:hidden p-2 text-slate-400 hover:text-white rounded-lg">
+        <div class="h-16 px-3 sm:px-4 bg-white border-b border-slate-200 flex items-center justify-between shrink-0 z-10 shadow-xs">
+          <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+            <button id="btn-back-to-list" class="md:hidden p-2 text-slate-500 hover:text-slate-800 rounded-lg">
               <i class="fa-solid fa-arrow-left"></i>
             </button>
-            <div id="chat-avatar" class="w-10 h-10 rounded-2xl bg-indigo-600/30 border border-indigo-500/40 text-brand-400 font-bold flex items-center justify-center text-sm">
+            <div id="chat-avatar" class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-brand-50 border border-brand-200 text-brand-600 font-bold flex items-center justify-center text-sm shrink-0">
               ?
             </div>
-            <div>
-              <h2 id="chat-name" class="font-bold text-sm text-slate-100 leading-tight">Peer</h2>
+            <div class="min-w-0">
+              <h2 id="chat-name" class="font-bold text-xs sm:text-sm text-slate-800 truncate leading-tight">Peer</h2>
               <div class="flex items-center gap-1.5 text-[11px]">
-                <span id="chat-status-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
-                <span id="chat-status-text" class="text-slate-400">Offline</span>
-                <span id="chat-device-id-badge" class="font-mono text-slate-500 text-[10px] hidden sm:inline"></span>
+                <span id="chat-status-dot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+                <span id="chat-status-text" class="text-slate-500 text-[11px]">Offline</span>
+                <span id="chat-device-id-badge" class="font-mono text-slate-400 text-[10px] hidden lg:inline truncate max-w-[140px]"></span>
               </div>
             </div>
           </div>
 
           <!-- Calling & Actions buttons -->
-          <div class="flex items-center gap-1.5">
-            <button id="btn-start-voice-call" title="Start Voice Call" class="w-9 h-9 rounded-xl bg-dark-700/80 hover:bg-dark-600 active:scale-95 text-slate-300 hover:text-emerald-400 flex items-center justify-center transition">
-              <i class="fa-solid fa-phone"></i>
+          <div class="flex items-center gap-1 sm:gap-2 shrink-0">
+            <button id="btn-start-voice-call" title="Start Voice Call" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-emerald-600 flex items-center justify-center transition border border-slate-200">
+              <i class="fa-solid fa-phone text-xs"></i>
             </button>
-            <button id="btn-start-video-call" title="Start Video Call" class="w-9 h-9 rounded-xl bg-dark-700/80 hover:bg-dark-600 active:scale-95 text-slate-300 hover:text-brand-400 flex items-center justify-center transition">
-              <i class="fa-solid fa-video"></i>
+            <button id="btn-start-video-call" title="Start Video Call" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-brand-600 flex items-center justify-center transition border border-slate-200">
+              <i class="fa-solid fa-video text-xs"></i>
             </button>
-            <button id="btn-clear-chat" title="Clear Chat History" class="w-9 h-9 rounded-xl bg-dark-700/80 hover:bg-dark-600 active:scale-95 text-slate-300 hover:text-rose-400 flex items-center justify-center transition">
-              <i class="fa-regular fa-trash-can"></i>
+            <button id="btn-clear-chat" title="Clear Chat History" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-amber-600 flex items-center justify-center transition border border-slate-200">
+              <i class="fa-regular fa-broom text-xs"></i>
+            </button>
+            <button id="btn-delete-contact" title="Delete Contact" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 flex items-center justify-center transition border border-slate-200">
+              <i class="fa-regular fa-trash-can text-xs"></i>
             </button>
           </div>
         </div>
 
         <!-- Messages Flow Container -->
-        <div id="messages-scroll-area" class="flex-1 overflow-y-auto p-4 space-y-3 flex flex-col">
-          <!-- Messages will be injected here -->
+        <div id="messages-scroll-area" class="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 flex flex-col bg-slate-50">
+          <!-- Injected Messages -->
         </div>
 
-        <!-- Voice Memo Recording Banner (Hidden by default) -->
-        <div id="voice-recording-overlay" class="hidden px-4 py-2.5 bg-rose-950/40 border-t border-rose-500/30 flex items-center justify-between text-xs text-rose-300 animate-fadeIn">
+        <!-- Voice Memo Recording Banner -->
+        <div id="voice-recording-overlay" class="hidden px-4 py-2.5 bg-rose-50 border-t border-rose-200 flex items-center justify-between text-xs text-rose-700 animate-fadeIn">
           <div class="flex items-center gap-2">
             <span class="w-3 h-3 rounded-full bg-rose-500 recording-pulse"></span>
             <span class="font-semibold">Recording Voice Memo...</span>
-            <span id="record-timer" class="font-mono font-bold text-white ml-2">00:00</span>
+            <span id="record-timer" class="font-mono font-bold text-rose-800 ml-2">00:00</span>
           </div>
           <div class="flex items-center gap-2">
-            <button id="btn-cancel-recording" class="px-2.5 py-1 text-slate-400 hover:text-white transition">Cancel</button>
-            <button id="btn-send-recording" class="px-3 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-lg font-medium transition flex items-center gap-1">
+            <button id="btn-cancel-recording" class="px-2.5 py-1 text-slate-500 hover:text-slate-800 transition">Cancel</button>
+            <button id="btn-send-recording" class="px-3 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-lg font-medium transition flex items-center gap-1 shadow-sm">
               <i class="fa-solid fa-paper-plane text-[10px]"></i> Send
             </button>
           </div>
         </div>
 
         <!-- Chat Input Bar -->
-        <div class="p-3 bg-dark-800/90 border-t border-dark-700 shrink-0 backdrop-blur">
-          <form id="chat-form" class="flex items-end gap-2" onsubmit="return false;">
-            
-            <!-- Hidden File Input -->
+        <div class="p-2.5 sm:p-3 bg-white border-t border-slate-200 shrink-0">
+          <form id="chat-form" class="flex items-end gap-1.5 sm:gap-2 max-w-full" onsubmit="return false;">
             <input type="file" id="file-input-element" class="hidden" multiple>
 
-            <!-- Attach File Button -->
-            <button type="button" id="btn-attach-file" title="Send Media or Files" class="w-10 h-10 rounded-xl bg-dark-700/80 hover:bg-dark-600 text-slate-400 hover:text-slate-200 flex items-center justify-center transition shrink-0">
-              <i class="fa-solid fa-paperclip"></i>
+            <button type="button" id="btn-attach-file" title="Send Media or Files" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition shrink-0 border border-slate-200">
+              <i class="fa-solid fa-paperclip text-sm"></i>
             </button>
 
-            <!-- Device Clipboard Paste Button -->
-            <button type="button" id="btn-paste-clipboard" title="Paste from Device Clipboard" class="w-10 h-10 rounded-xl bg-dark-700/80 hover:bg-dark-600 text-slate-400 hover:text-brand-400 flex items-center justify-center transition shrink-0">
-              <i class="fa-solid fa-paste"></i>
+            <button type="button" id="btn-paste-clipboard" title="Paste Clipboard" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-brand-600 flex items-center justify-center transition shrink-0 border border-slate-200">
+              <i class="fa-solid fa-paste text-sm"></i>
             </button>
 
-            <!-- Text Input Area -->
-            <div class="flex-1 bg-dark-900 border border-dark-700 rounded-2xl flex items-center px-3 py-1 focus-within:border-brand-500 transition">
-              <textarea id="message-text-input" rows="1" placeholder="Type a message or paste..." 
-                class="w-full bg-transparent text-sm text-slate-100 placeholder-slate-500 focus:outline-none resize-none py-1.5 max-h-24 overflow-y-auto"></textarea>
+            <div class="flex-1 bg-slate-100 border border-slate-200 rounded-2xl flex items-center px-3 py-1 focus-within:border-brand-500 focus-within:bg-white transition min-w-0">
+              <textarea id="message-text-input" rows="1" placeholder="Type a message..." 
+                class="w-full bg-transparent text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none resize-none py-1.5 max-h-24 overflow-y-auto"></textarea>
             </div>
 
-            <!-- Voice Memo Record Trigger Button -->
-            <button type="button" id="btn-voice-memo" title="Record Voice Memo" class="w-10 h-10 rounded-xl bg-dark-700/80 hover:bg-dark-600 text-slate-400 hover:text-rose-400 flex items-center justify-center transition shrink-0">
-              <i class="fa-solid fa-microphone"></i>
+            <button type="button" id="btn-voice-memo" title="Voice Memo" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-rose-600 flex items-center justify-center transition shrink-0 border border-slate-200">
+              <i class="fa-solid fa-microphone text-sm"></i>
             </button>
 
-            <!-- Send Message Button -->
-            <button type="submit" id="btn-send-message" class="w-10 h-10 rounded-xl bg-brand-600 hover:bg-brand-500 active:scale-95 text-white flex items-center justify-center transition shrink-0 shadow-md shadow-brand-600/30">
-              <i class="fa-solid fa-arrow-up"></i>
+            <button type="submit" id="btn-send-message" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-brand-600 hover:bg-brand-500 active:scale-95 text-white flex items-center justify-center transition shrink-0 shadow-sm">
+              <i class="fa-solid fa-arrow-up text-sm"></i>
             </button>
           </form>
         </div>
@@ -265,34 +266,34 @@
     </main>
   </div>
 
-  <!-- Modal: Add or Connect to New Peer ID -->
-  <div id="modal-add-peer" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-dark-800 border border-dark-700 rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
+  <!-- Modal: Add New Peer -->
+  <div id="modal-add-peer" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-md p-5 sm:p-6 shadow-xl relative">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="font-bold text-base text-white flex items-center gap-2">
-          <i class="fa-solid fa-user-plus text-brand-500"></i> Connect to Peer
+        <h3 class="font-bold text-sm sm:text-base text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-user-plus text-brand-600"></i> Connect to Peer
         </h3>
-        <button id="btn-close-peer-modal" class="text-slate-400 hover:text-white p-1 rounded-lg">
+        <button id="btn-close-peer-modal" class="text-slate-400 hover:text-slate-700 p-1 rounded-lg">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
 
-      <p class="text-xs text-slate-400 mb-4 leading-relaxed">
-        Enter another user's permanent Device ID to initiate a direct peer-to-peer connection and save them to your contacts list permanently.
+      <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+        Enter another peer's permanent Device ID to save them to your contact list and open a secure direct channel.
       </p>
 
       <div class="space-y-3 mb-6">
         <div>
-          <label class="block text-[11px] font-semibold text-slate-300 uppercase mb-1">Contact Name</label>
-          <input id="input-peer-name" type="text" placeholder="e.g. Alice, Work Mobile, Bob" 
-            class="w-full bg-dark-900 border border-dark-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
+          <label class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Contact Name</label>
+          <input id="input-peer-name" type="text" placeholder="e.g. Alice, Tablet, Work Desk" 
+            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition">
         </div>
         <div>
-          <label class="block text-[11px] font-semibold text-slate-300 uppercase mb-1">Target Device ID</label>
+          <label class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Target Device ID</label>
           <div class="flex gap-2">
             <input id="input-peer-id" type="text" placeholder="Paste device ID here..." 
-              class="w-full bg-dark-900 border border-dark-700 rounded-xl px-3.5 py-2 text-xs font-mono text-white focus:outline-none focus:border-brand-500">
-            <button id="btn-paste-peer-id" type="button" class="px-3 py-2 bg-dark-700 hover:bg-dark-600 text-slate-300 text-xs rounded-xl font-medium shrink-0">
+              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition">
+            <button id="btn-paste-peer-id" type="button" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs rounded-xl font-medium shrink-0">
               Paste
             </button>
           </div>
@@ -300,79 +301,71 @@
       </div>
 
       <div class="flex justify-end gap-2">
-        <button id="btn-cancel-add-peer" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white">Cancel</button>
-        <button id="btn-confirm-add-peer" class="px-5 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white shadow-md shadow-brand-600/30">Connect & Save</button>
+        <button id="btn-cancel-add-peer" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-600 hover:text-slate-900">Cancel</button>
+        <button id="btn-confirm-add-peer" class="px-5 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white shadow-sm">Save & Connect</button>
       </div>
     </div>
   </div>
 
-  <!-- INCOMING CALL MODAL OVERLAY -->
-  <div id="incoming-call-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-dark-800 border border-brand-500/30 rounded-3xl w-full max-w-sm p-6 text-center shadow-2xl flex flex-col items-center animate-bounce-short">
-      <div id="incoming-call-avatar" class="w-20 h-20 rounded-full bg-brand-600 flex items-center justify-center text-3xl font-bold text-white mb-4 ring-4 ring-brand-500/20 recording-pulse">
+  <!-- INCOMING CALL MODAL -->
+  <div id="incoming-call-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-sm p-6 text-center shadow-2xl flex flex-col items-center">
+      <div id="incoming-call-avatar" class="w-20 h-20 rounded-full bg-brand-600 flex items-center justify-center text-3xl font-bold text-white mb-4 ring-4 ring-brand-100 recording-pulse">
         <i class="fa-solid fa-phone"></i>
       </div>
-      <h3 id="incoming-caller-name" class="font-bold text-lg text-white mb-1">Incoming Call</h3>
-      <p id="incoming-call-type" class="text-xs text-brand-400 font-medium uppercase tracking-wider mb-6">Peer Voice Call</p>
+      <h3 id="incoming-caller-name" class="font-bold text-lg text-slate-900 mb-1">Incoming Call</h3>
+      <p id="incoming-call-type" class="text-xs text-brand-600 font-semibold uppercase tracking-wider mb-6">Peer Voice Call</p>
 
       <div class="flex items-center justify-center gap-6 w-full">
-        <!-- Reject Button -->
-        <button id="btn-reject-call" class="w-14 h-14 rounded-full bg-rose-600 hover:bg-rose-500 text-white flex items-center justify-center text-xl shadow-lg shadow-rose-600/40 active:scale-95 transition">
+        <button id="btn-reject-call" class="w-14 h-14 rounded-full bg-rose-600 hover:bg-rose-500 text-white flex items-center justify-center text-xl shadow-md active:scale-95 transition">
           <i class="fa-solid fa-phone-slash"></i>
         </button>
-        <!-- Accept Button -->
-        <button id="btn-accept-call" class="w-14 h-14 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center text-xl shadow-lg shadow-emerald-600/40 active:scale-95 transition">
+        <button id="btn-accept-call" class="w-14 h-14 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center text-xl shadow-md active:scale-95 transition">
           <i class="fa-solid fa-phone"></i>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ACTIVE CALL INTERFACE (FLOATING/FULL OVERLAY) -->
-  <div id="active-call-overlay" class="fixed inset-0 bg-dark-900/95 backdrop-blur-xl z-50 flex flex-col justify-between hidden">
-    <!-- Call Header -->
-    <div class="p-4 flex items-center justify-between border-b border-dark-700/60">
+  <!-- ACTIVE CALL OVERLAY -->
+  <div id="active-call-overlay" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-50 flex flex-col justify-between hidden">
+    <div class="p-4 flex items-center justify-between border-b border-slate-700/60">
       <div class="flex items-center gap-3">
         <div class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></div>
         <div>
           <h4 id="active-call-peer-name" class="font-bold text-sm text-white">In Call</h4>
-          <span id="call-duration-timer" class="font-mono text-xs text-slate-400">00:00</span>
+          <span id="call-duration-timer" class="font-mono text-xs text-slate-300">00:00</span>
         </div>
       </div>
-      <button id="btn-minimize-call" class="text-slate-400 hover:text-white p-2">
+      <button id="btn-minimize-call" class="text-slate-300 hover:text-white p-2">
         <i class="fa-solid fa-compress"></i>
       </button>
     </div>
 
-    <!-- Call Visuals Container (Video Feeds or Audio Placeholders) -->
     <div class="flex-1 relative flex items-center justify-center p-4 overflow-hidden" id="call-media-container">
-      <!-- Remote Video -->
       <video id="remote-video" autoplay playsinline class="w-full h-full object-contain rounded-2xl bg-black hidden"></video>
 
-      <!-- Audio Call Persona State (Shown when video is disabled) -->
       <div id="audio-call-display" class="flex flex-col items-center">
-        <div class="w-28 h-28 rounded-full bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center text-4xl text-white font-bold shadow-2xl mb-4 recording-pulse">
+        <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center text-4xl text-white font-bold shadow-xl mb-4 recording-pulse">
           <i class="fa-solid fa-user"></i>
         </div>
-        <h3 id="audio-call-title" class="text-lg font-bold text-white">Voice Call</h3>
-        <p class="text-xs text-emerald-400 font-mono mt-1">Direct Peer-to-Peer Audio Connected</p>
+        <h3 id="audio-call-title" class="text-base sm:text-lg font-bold text-white">Voice Call</h3>
+        <p class="text-xs text-emerald-400 font-mono mt-1">Direct Peer Connection Active</p>
       </div>
 
-      <!-- Local PIP Video Preview -->
-      <div id="local-pip-container" class="absolute bottom-4 right-4 w-32 h-44 sm:w-44 sm:h-56 bg-dark-800 rounded-2xl overflow-hidden border-2 border-brand-500/50 shadow-2xl hidden">
+      <div id="local-pip-container" class="absolute bottom-4 right-4 w-28 h-36 sm:w-40 sm:h-52 bg-slate-800 rounded-2xl overflow-hidden border-2 border-brand-500 shadow-2xl hidden">
         <video id="local-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
       </div>
     </div>
 
-    <!-- Call Controls Bar -->
-    <div class="p-6 bg-dark-800/80 border-t border-dark-700/60 flex items-center justify-center gap-4">
-      <button id="btn-toggle-mic" class="w-12 h-12 rounded-2xl bg-dark-700 hover:bg-dark-600 text-white flex items-center justify-center text-base transition">
+    <div class="p-4 sm:p-6 bg-slate-950/70 border-t border-slate-800 flex items-center justify-center gap-4">
+      <button id="btn-toggle-mic" class="w-12 h-12 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center text-base transition">
         <i class="fa-solid fa-microphone"></i>
       </button>
-      <button id="btn-toggle-camera" class="w-12 h-12 rounded-2xl bg-dark-700 hover:bg-dark-600 text-white flex items-center justify-center text-base transition">
+      <button id="btn-toggle-camera" class="w-12 h-12 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center text-base transition">
         <i class="fa-solid fa-video"></i>
       </button>
-      <button id="btn-end-call" class="w-14 h-14 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white flex items-center justify-center text-xl shadow-lg shadow-rose-600/40 active:scale-95 transition">
+      <button id="btn-end-call" class="w-14 h-14 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white flex items-center justify-center text-xl shadow-lg active:scale-95 transition">
         <i class="fa-solid fa-phone-slash"></i>
       </button>
     </div>
@@ -380,11 +373,10 @@
 
   <script>
     /**
-     * Permanent Client-Side IndexedDB Storage Module
-     * Stores contacts, chat history, files, and audio notes permanently on user device.
+     * IndexedDB Storage Module
      */
-    const DB_NAME = 'NexusP2PMessengerDB';
-    const DB_VERSION = 1;
+    const DB_NAME = 'NexusP2PMessengerDB_v2';
+    const DB_VERSION = 2;
     let db;
 
     async function initIndexedDB() {
@@ -393,15 +385,15 @@
         request.onerror = (e) => reject('Database error: ' + e.target.error);
         request.onupgradeneeded = (e) => {
           const dbInstance = e.target.result;
-          // Store for Contacts
           if (!dbInstance.objectStoreNames.contains('contacts')) {
             dbInstance.createObjectStore('contacts', { keyPath: 'peerId' });
           }
-          // Store for Messages
           if (!dbInstance.objectStoreNames.contains('messages')) {
             const msgStore = dbInstance.createObjectStore('messages', { keyPath: 'id', autoIncrement: true });
             msgStore.createIndex('peerId', 'peerId', { unique: false });
             msgStore.createIndex('timestamp', 'timestamp', { unique: false });
+            msgStore.createIndex('msgUuid', 'msgUuid', { unique: true });
+            msgStore.createIndex('delivered', 'delivered', { unique: false });
           }
         };
         request.onsuccess = (e) => {
@@ -421,6 +413,28 @@
       });
     }
 
+    async function dbDeleteContact(peerId) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(['contacts', 'messages'], 'readwrite');
+        const contactStore = tx.objectStore('contacts');
+        contactStore.delete(peerId);
+
+        // Delete all messages associated with contact
+        const msgStore = tx.objectStore('messages');
+        const index = msgStore.index('peerId');
+        const req = index.openCursor(IDBKeyRange.only(peerId));
+        req.onsuccess = (e) => {
+          const cursor = e.target.result;
+          if (cursor) {
+            cursor.delete();
+            cursor.continue();
+          }
+        };
+        tx.oncomplete = () => resolve();
+        tx.onerror = (e) => reject(e);
+      });
+    }
+
     async function dbGetAllContacts() {
       return new Promise((resolve, reject) => {
         const tx = db.transaction(['contacts'], 'readonly');
@@ -435,9 +449,46 @@
       return new Promise((resolve, reject) => {
         const tx = db.transaction(['messages'], 'readwrite');
         const store = tx.objectStore('messages');
-        store.add(msg);
+        const req = store.add(msg);
+        req.onsuccess = (e) => {
+          msg.id = e.target.result;
+          resolve(msg);
+        };
+        tx.onerror = (e) => reject(e);
+      });
+    }
+
+    async function dbMarkMessageDelivered(msgUuid) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(['messages'], 'readwrite');
+        const store = tx.objectStore('messages');
+        const index = store.index('msgUuid');
+        const req = index.openCursor(IDBKeyRange.only(msgUuid));
+        req.onsuccess = (e) => {
+          const cursor = e.target.result;
+          if (cursor) {
+            const updated = cursor.value;
+            updated.delivered = true;
+            cursor.update(updated);
+            cursor.continue();
+          }
+        };
         tx.oncomplete = () => resolve();
         tx.onerror = (e) => reject(e);
+      });
+    }
+
+    async function dbGetUndeliveredMessagesForPeer(peerId) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(['messages'], 'readonly');
+        const store = tx.objectStore('messages');
+        const index = store.index('peerId');
+        const req = index.getAll(peerId);
+        req.onsuccess = () => {
+          const msgs = (req.result || []).filter(m => m.fromSelf && !m.delivered);
+          resolve(msgs);
+        };
+        req.onerror = (e) => reject(e);
       });
     }
 
@@ -473,24 +524,48 @@
       });
     }
 
-    // Create or retrieve permanent Device ID
+    async function wipeAllDeviceData() {
+      if (!confirm('Warning: This will delete ALL contacts, chats, files, and reset your Device ID. Are you sure?')) {
+        return;
+      }
+      try {
+        if (db) db.close();
+        indexedDB.deleteDatabase(DB_NAME);
+        localStorage.clear();
+        sessionStorage.clear();
+        location.reload();
+      } catch (e) {
+        alert('Error wiping device: ' + e);
+      }
+    }
+
+    // Dynamic Viewport Height Handler for TVs, iPads, and iOS toolbars
+    function setAppViewportHeight() {
+      const vh = window.innerHeight;
+      const vw = window.innerWidth;
+      document.documentElement.style.setProperty('--app-height', `${vh}px`);
+      document.documentElement.style.setProperty('--app-width', `${vw}px`);
+    }
+    window.addEventListener('resize', setAppViewportHeight);
+    window.addEventListener('orientationchange', setAppViewportHeight);
+    setAppViewportHeight();
+
     function getPermanentDeviceId() {
-      let id = localStorage.getItem('nexus_permanent_device_id');
+      let id = localStorage.getItem('nexus_permanent_device_id_v2');
       if (!id) {
-        // Generate cryptographic 12-char unique device ID
         const randomHex = Array.from(crypto.getRandomValues(new Uint8Array(6)))
           .map(b => b.toString(16).padStart(2, '0'))
           .join('');
         id = 'nexus-' + randomHex;
-        localStorage.setItem('nexus_permanent_device_id', id);
+        localStorage.setItem('nexus_permanent_device_id_v2', id);
       }
       return id;
     }
 
     const myDeviceId = getPermanentDeviceId();
     let peer = null;
-    let activeConnections = {}; // Map of peerId -> DataConnection
-    let activePeerId = null;    // Currently selected conversation peerId
+    let activeConnections = {}; 
+    let activePeerId = null;    
     let localStream = null;
     let activeMediaCall = null;
     let callTimerInterval = null;
@@ -516,22 +591,20 @@
     myDeviceIdEl.innerText = myDeviceId;
 
     class AudioAlerts {
-      static playTone(freq, type = 'sine', duration = 0.2) {
+      static playTone(freq, type = 'sine', duration = 0.15) {
         try {
           const ctx = new (window.AudioContext || window.webkitAudioContext)();
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.type = type;
           osc.frequency.value = freq;
-          gain.gain.setValueAtTime(0.1, ctx.currentTime);
+          gain.gain.setValueAtTime(0.08, ctx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
           osc.connect(gain);
           gain.connect(ctx.destination);
           osc.start();
           osc.stop(ctx.currentTime + duration);
-        } catch (e) {
-          console.warn('Audio tone failed', e);
-        }
+        } catch (e) {}
       }
 
       static playRing() {
@@ -549,16 +622,15 @@
       }
 
       static playSendSound() {
-        this.playTone(700, 'sine', 0.1);
+        this.playTone(680, 'sine', 0.08);
       }
 
       static playReceiveSound() {
-        this.playTone(550, 'sine', 0.15);
+        this.playTone(520, 'sine', 0.12);
       }
     }
 
     function initializePeer() {
-      // Connect to public PeerJS STUN broker with our permanent Device ID
       peer = new Peer(myDeviceId, {
         debug: 1,
         config: {
@@ -571,8 +643,6 @@
 
       peer.on('open', (id) => {
         document.getElementById('p2p-status').innerText = 'Online (Ready)';
-        console.log('Peer connected with permanent Device ID:', id);
-        // Connect to existing saved contacts to check online presence
         autoConnectContacts();
       });
 
@@ -585,20 +655,38 @@
       });
 
       peer.on('error', (err) => {
-        console.error('PeerJS error:', err);
         if (err.type === 'unavailable-id') {
-          // In case another tab open with same ID
-          document.getElementById('p2p-status').innerText = 'Online (Another tab active)';
+          document.getElementById('p2p-status').innerText = 'Online (Multi-tab)';
         }
       });
+    }
+
+    // Auto resend undelivered messages once connection is verified open
+    async function flushPendingMessages(peerId) {
+      const conn = activeConnections[peerId];
+      if (!conn || !conn.open) return;
+
+      const pending = await dbGetUndeliveredMessagesForPeer(peerId);
+      for (const msg of pending) {
+        try {
+          conn.send({
+            msgUuid: msg.msgUuid,
+            type: msg.type,
+            content: msg.content,
+            fileName: msg.fileName || null,
+            fileType: msg.fileType || null,
+            timestamp: msg.timestamp
+          });
+        } catch (err) {
+          console.warn('Retry send failed for message', msg.msgUuid, err);
+        }
+      }
     }
 
     function setupDataConnection(conn) {
       activeConnections[conn.peer] = conn;
 
       conn.on('open', async () => {
-        console.log('Data channel open with:', conn.peer);
-        // Check if contact already in DB; if not, add default
         const contacts = await dbGetAllContacts();
         let existing = contacts.find(c => c.peerId === conn.peer);
         if (!existing) {
@@ -607,24 +695,44 @@
             name: 'Device ' + conn.peer.slice(-4),
             lastSeen: Date.now()
           });
-          renderContactsList();
         }
         updatePeerOnlineStatus(conn.peer, true);
+        
+        // Immediately flush any unsent/undelivered messages now that peer is online
+        flushPendingMessages(conn.peer);
       });
 
       conn.on('data', async (payload) => {
-        console.log('Incoming P2P payload from', conn.peer, payload);
+        // Handle ACK confirmation for delivered messages
+        if (payload && payload.isAck) {
+          await dbMarkMessageDelivered(payload.ackMsgUuid);
+          const tickEl = document.getElementById(`tick-${payload.ackMsgUuid}`);
+          if (tickEl) {
+            tickEl.className = 'fa-solid fa-check-double text-[9px] text-brand-600';
+            tickEl.title = 'Delivered';
+          }
+          return;
+        }
+
         AudioAlerts.playReceiveSound();
-        
-        // Handle payload types: text, file, voice
+
+        // Send ACK back to sender to confirm delivery
+        if (payload.msgUuid) {
+          try {
+            conn.send({ isAck: true, ackMsgUuid: payload.msgUuid });
+          } catch(e) {}
+        }
+
         const incomingMsg = {
+          msgUuid: payload.msgUuid || ('uuid-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5)),
           peerId: conn.peer,
           fromSelf: false,
+          delivered: true,
           type: payload.type || 'text',
           content: payload.content,
           fileName: payload.fileName || null,
           fileType: payload.fileType || null,
-          timestamp: Date.now()
+          timestamp: payload.timestamp || Date.now()
         };
 
         await dbSaveMessage(incomingMsg);
@@ -632,7 +740,7 @@
         if (activePeerId === conn.peer) {
           appendMessageToUI(incomingMsg);
         } else {
-          renderContactsList(); // Refresh badge/order
+          renderContactsList();
         }
       });
 
@@ -654,9 +762,7 @@
           try {
             const conn = peer.connect(c.peerId, { reliable: true });
             setupDataConnection(conn);
-          } catch(e) {
-            console.warn('Auto-connect attempt error:', e);
-          }
+          } catch(e) {}
         }
       });
     }
@@ -667,7 +773,7 @@
           chatStatusDot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
           chatStatusText.innerText = 'Online';
         } else {
-          chatStatusDot.className = 'w-2 h-2 rounded-full bg-slate-500';
+          chatStatusDot.className = 'w-2 h-2 rounded-full bg-slate-400';
           chatStatusText.innerText = 'Offline';
         }
       }
@@ -685,8 +791,8 @@
 
       if (filtered.length === 0) {
         contactsContainer.innerHTML = `
-          <div class="text-center py-10 px-4 text-slate-500 text-xs">
-            <i class="fa-regular fa-user text-2xl mb-2 opacity-50"></i>
+          <div class="text-center py-12 px-4 text-slate-400 text-xs">
+            <i class="fa-regular fa-user text-2xl mb-2 opacity-40"></i>
             <p>No contacts found</p>
           </div>
         `;
@@ -697,7 +803,6 @@
         const isOnline = !!activeConnections[contact.peerId];
         const isSelected = activePeerId === contact.peerId;
         
-        // Fetch last message for preview
         const messages = await dbGetMessagesForPeer(contact.peerId);
         const lastMsg = messages.length > 0 ? messages[messages.length - 1] : null;
         let snippet = 'No messages yet';
@@ -712,31 +817,65 @@
         }
 
         const item = document.createElement('div');
-        item.className = `p-3 rounded-2xl cursor-pointer transition-all flex items-center gap-3 ${
-          isSelected ? 'bg-dark-700/80 border border-brand-500/40' : 'hover:bg-dark-750'
+        item.className = `group p-2.5 rounded-2xl cursor-pointer transition-all flex items-center justify-between gap-2.5 ${
+          isSelected ? 'bg-brand-50 border border-brand-200' : 'hover:bg-slate-100'
         }`;
 
         item.innerHTML = `
-          <div class="relative shrink-0">
-            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-slate-700 to-slate-600 text-white font-bold flex items-center justify-center text-sm shadow">
-              ${contact.name.charAt(0).toUpperCase()}
+          <div class="flex items-center gap-2.5 min-w-0 flex-1">
+            <div class="relative shrink-0">
+              <div class="w-10 h-10 rounded-2xl bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-sm">
+                ${contact.name.charAt(0).toUpperCase()}
+              </div>
+              <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white ${
+                isOnline ? 'bg-emerald-500' : 'bg-slate-300'
+              }"></span>
             </div>
-            <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-dark-800 ${
-              isOnline ? 'bg-emerald-500' : 'bg-slate-500'
-            }"></span>
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center justify-between mb-0.5">
-              <span class="font-bold text-xs text-white truncate">${escapeHtml(contact.name)}</span>
-              <span class="text-[10px] text-slate-400">${timeStr}</span>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="font-bold text-xs text-slate-800 truncate">${escapeHtml(contact.name)}</span>
+                <span class="text-[10px] text-slate-400 shrink-0">${timeStr}</span>
+              </div>
+              <p class="text-[11px] text-slate-500 truncate">${escapeHtml(snippet)}</p>
             </div>
-            <p class="text-[11px] text-slate-400 truncate">${escapeHtml(snippet)}</p>
           </div>
+          <button class="btn-quick-del opacity-0 group-hover:opacity-100 p-2 text-slate-400 hover:text-rose-600 transition rounded-lg text-xs" title="Delete Contact">
+            <i class="fa-regular fa-trash-can pointer-events-none"></i>
+          </button>
         `;
 
-        item.addEventListener('click', () => selectChatPeer(contact));
+        item.addEventListener('click', (e) => {
+          if (e.target.closest('.btn-quick-del')) {
+            e.stopPropagation();
+            promptDeleteContact(contact.peerId, contact.name);
+            return;
+          }
+          selectChatPeer(contact);
+        });
+
         contactsContainer.appendChild(item);
       }
+    }
+
+    async function promptDeleteContact(peerId, name) {
+      if (!confirm(`Delete contact "${name}" and all associated chat history?`)) return;
+      
+      await dbDeleteContact(peerId);
+      if (activeConnections[peerId]) {
+        activeConnections[peerId].close();
+        delete activeConnections[peerId];
+      }
+
+      if (activePeerId === peerId) {
+        activePeerId = null;
+        activeChatEl.classList.add('hidden');
+        noChatSelectedEl.classList.remove('hidden');
+        if (window.innerWidth < 768) {
+          document.getElementById('sidebar').classList.remove('hidden');
+        }
+      }
+
+      await renderContactsList();
     }
 
     async function selectChatPeer(contact) {
@@ -744,7 +883,6 @@
       noChatSelectedEl.classList.add('hidden');
       activeChatEl.classList.remove('hidden');
 
-      // Mobile responsive toggle
       if (window.innerWidth < 768) {
         document.getElementById('sidebar').classList.add('hidden');
       }
@@ -756,17 +894,15 @@
       const isOnline = !!activeConnections[contact.peerId];
       updatePeerOnlineStatus(contact.peerId, isOnline);
 
-      // Attempt reconnection if offline
       if (!isOnline) {
         try {
           const conn = peer.connect(contact.peerId, { reliable: true });
           setupDataConnection(conn);
-        } catch(e) {
-          console.warn('Connect error', e);
-        }
+        } catch(e) {}
+      } else {
+        flushPendingMessages(contact.peerId);
       }
 
-      // Load persistent messages from IndexedDB
       messagesScroll.innerHTML = '';
       const msgs = await dbGetMessagesForPeer(contact.peerId);
       msgs.forEach(msg => appendMessageToUI(msg, false));
@@ -779,46 +915,45 @@
       bubbleWrapper.className = `flex flex-col ${msg.fromSelf ? 'items-end' : 'items-start'} max-w-full`;
 
       const bubble = document.createElement('div');
-      bubble.className = `max-w-[85%] sm:max-w-[70%] rounded-2xl px-4 py-2.5 shadow-md text-xs sm:text-sm break-words ${
+      bubble.className = `max-w-[85%] sm:max-w-[70%] rounded-2xl px-3.5 py-2.5 shadow-xs text-xs sm:text-sm break-words ${
         msg.fromSelf 
           ? 'bg-brand-600 text-white rounded-br-xs' 
-          : 'bg-dark-800 border border-dark-700 text-slate-200 rounded-bl-xs'
+          : 'bg-white border border-slate-200 text-slate-800 rounded-bl-xs'
       }`;
 
-      // Render content based on payload type
       if (msg.type === 'text') {
         bubble.innerHTML = `<p class="whitespace-pre-wrap leading-relaxed">${escapeHtml(msg.content)}</p>`;
       } else if (msg.type === 'voice') {
         bubble.innerHTML = `
           <div class="flex items-center gap-2">
-            <audio controls class="h-8 max-w-[220px]" src="${msg.content}"></audio>
+            <audio controls class="h-8 max-w-[200px] sm:max-w-[240px]" src="${msg.content}"></audio>
           </div>
         `;
       } else if (msg.type === 'file') {
         if (msg.fileType && msg.fileType.startsWith('image/')) {
           bubble.innerHTML = `
             <div class="space-y-1.5">
-              <img src="${msg.content}" alt="Image" class="rounded-xl max-h-60 max-w-full object-cover cursor-pointer hover:opacity-95 transition" onclick="window.open('${msg.content}')" />
-              <div class="text-[11px] opacity-80 truncate">${escapeHtml(msg.fileName || 'Photo')}</div>
+              <img src="${msg.content}" alt="Attachment" class="rounded-xl max-h-56 max-w-full object-cover cursor-pointer hover:opacity-95" onclick="window.open('${msg.content}')" />
+              <div class="text-[11px] opacity-80 truncate">${escapeHtml(msg.fileName || 'Image')}</div>
             </div>
           `;
         } else if (msg.fileType && msg.fileType.startsWith('video/')) {
           bubble.innerHTML = `
             <div class="space-y-1.5">
-              <video controls src="${msg.content}" class="rounded-xl max-h-60 max-w-full"></video>
+              <video controls src="${msg.content}" class="rounded-xl max-h-56 max-w-full"></video>
               <div class="text-[11px] opacity-80 truncate">${escapeHtml(msg.fileName || 'Video')}</div>
             </div>
           `;
         } else {
           bubble.innerHTML = `
-            <div class="flex items-center gap-3 py-1">
-              <div class="w-9 h-9 rounded-xl bg-black/20 flex items-center justify-center text-lg">
+            <div class="flex items-center gap-2.5 py-1">
+              <div class="w-8 h-8 rounded-xl ${msg.fromSelf ? 'bg-white/20' : 'bg-slate-100'} flex items-center justify-center text-sm">
                 <i class="fa-solid fa-file-arrow-down"></i>
               </div>
               <div class="flex-1 truncate">
                 <p class="font-medium truncate">${escapeHtml(msg.fileName || 'Attachment')}</p>
                 <a href="${msg.content}" download="${escapeHtml(msg.fileName || 'download')}" class="text-[11px] underline opacity-90 hover:opacity-100">
-                  Download File
+                  Download
                 </a>
               </div>
             </div>
@@ -826,12 +961,22 @@
         }
       }
 
-      // Timestamp & Delivery Tick
+      // Metadata: Time & Delivery Status Indicator (Pending vs Delivered)
       const meta = document.createElement('div');
-      meta.className = `text-[9px] mt-1 flex items-center gap-1 ${msg.fromSelf ? 'text-brand-200' : 'text-slate-400'}`;
+      meta.className = `text-[9px] mt-1 flex items-center gap-1 ${msg.fromSelf ? 'text-brand-100' : 'text-slate-400'}`;
+      
+      let deliveryIndicator = '';
+      if (msg.fromSelf) {
+        if (msg.delivered) {
+          deliveryIndicator = `<i id="tick-${msg.msgUuid}" class="fa-solid fa-check-double text-[9px] text-brand-200" title="Delivered"></i>`;
+        } else {
+          deliveryIndicator = `<i id="tick-${msg.msgUuid}" class="fa-solid fa-clock text-[9px] text-amber-200 animate-pulse" title="Pending: Will resend once user is online"></i>`;
+        }
+      }
+
       meta.innerHTML = `
         <span>${new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-        ${msg.fromSelf ? '<i class="fa-solid fa-check-double text-[8px]"></i>' : ''}
+        ${deliveryIndicator}
       `;
       bubble.appendChild(meta);
 
@@ -859,36 +1004,41 @@
     async function sendMessage(type, content, extra = {}) {
       if (!activePeerId) return;
 
-      const payload = {
-        type: type,
-        content: content,
-        ...extra
-      };
-
-      // Direct WebRTC transmission
+      const msgUuid = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 7);
       const conn = activeConnections[activePeerId];
-      if (conn && conn.open) {
-        conn.send(payload);
-      } else {
-        // Try to connect once and send
-        try {
-          const freshConn = peer.connect(activePeerId, { reliable: true });
-          freshConn.on('open', () => {
-            setupDataConnection(freshConn);
-            freshConn.send(payload);
-          });
-        } catch (e) {
-          console.warn('Could not immediately connect to send message', e);
-        }
-      }
+      const isConnected = !!(conn && conn.open);
 
-      // Save permanently in sender's IndexedDB
-      const storedMsg = {
-        peerId: activePeerId,
-        fromSelf: true,
+      const payload = {
+        msgUuid: msgUuid,
         type: type,
         content: content,
         timestamp: Date.now(),
+        ...extra
+      };
+
+      if (isConnected) {
+        try {
+          conn.send(payload);
+        } catch (e) {
+          console.warn('Direct send error', e);
+        }
+      } else {
+        // Attempt quick connect
+        try {
+          const freshConn = peer.connect(activePeerId, { reliable: true });
+          setupDataConnection(freshConn);
+        } catch(e) {}
+      }
+
+      // Store in DB with delivery tracking
+      const storedMsg = {
+        msgUuid: msgUuid,
+        peerId: activePeerId,
+        fromSelf: true,
+        delivered: false, // Will be marked true upon ACK or immediate connection confirmation
+        type: type,
+        content: content,
+        timestamp: payload.timestamp,
         ...extra
       };
 
@@ -898,7 +1048,6 @@
       renderContactsList();
     }
 
-    // Text message form submission
     document.getElementById('chat-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const text = messageInput.value.trim();
@@ -908,26 +1057,24 @@
       messageInput.style.height = 'auto';
     });
 
-    // Auto-expand textarea height
     messageInput.addEventListener('input', function() {
       this.style.height = 'auto';
       this.style.height = (this.scrollHeight) + 'px';
     });
 
-    // Device Clipboard Integration: 1-click Paste
+    // Clipboard Paste
     document.getElementById('btn-paste-clipboard').addEventListener('click', async () => {
       try {
         if (navigator.clipboard && navigator.clipboard.read) {
           const items = await navigator.clipboard.read();
           for (const item of items) {
-            // Check for image in clipboard
             const imageType = item.types.find(t => t.startsWith('image/'));
             if (imageType) {
               const blob = await item.getType(imageType);
               const reader = new FileReader();
               reader.onload = (evt) => {
                 sendMessage('file', evt.target.result, {
-                  fileName: 'clipboard_image_' + Date.now() + '.png',
+                  fileName: 'image_' + Date.now() + '.png',
                   fileType: imageType
                 });
               };
@@ -937,7 +1084,6 @@
           }
         }
 
-        // Fallback for clipboard text
         if (navigator.clipboard && navigator.clipboard.readText) {
           const text = await navigator.clipboard.readText();
           if (text) {
@@ -945,17 +1091,15 @@
             messageInput.focus();
           }
         } else {
-          // Document execCommand fallback
           messageInput.focus();
           document.execCommand('paste');
         }
       } catch (err) {
-        console.warn('Clipboard read error:', err);
         messageInput.focus();
       }
     });
 
-    // File attachments handling
+    // Files
     const fileInput = document.getElementById('file-input-element');
     document.getElementById('btn-attach-file').addEventListener('click', () => fileInput.click());
 
@@ -974,6 +1118,7 @@
       fileInput.value = '';
     });
 
+    // Voice Memos
     const btnVoiceMemo = document.getElementById('btn-voice-memo');
     const voiceRecordingOverlay = document.getElementById('voice-recording-overlay');
     const recordTimer = document.getElementById('record-timer');
@@ -982,7 +1127,6 @@
 
     btnVoiceMemo.addEventListener('click', async () => {
       if (mediaRecorder && mediaRecorder.state === 'recording') return;
-
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         mediaRecorder = new MediaRecorder(stream);
@@ -1004,7 +1148,7 @@
           recordTimer.innerText = `${mins}:${secs}`;
         }, 1000);
       } catch (e) {
-        console.error('Microphone access denied:', e);
+        alert('Microphone access unavailable or denied.');
       }
     });
 
@@ -1033,6 +1177,7 @@
       voiceRecordingOverlay.classList.add('hidden');
     });
 
+    // Audio / Video Calling
     const incomingCallModal = document.getElementById('incoming-call-modal');
     const activeCallOverlay = document.getElementById('active-call-overlay');
     const remoteVideo = document.getElementById('remote-video');
@@ -1041,12 +1186,8 @@
     const audioCallDisplay = document.getElementById('audio-call-display');
     const callDurationTimer = document.getElementById('call-duration-timer');
 
-    let incomingCallInstance = null;
-
-    // Start outgoing voice/video call
     async function startCall(videoEnabled = false) {
       if (!activePeerId) return;
-
       try {
         localStream = await navigator.mediaDevices.getUserMedia({
           audio: true,
@@ -1071,16 +1212,14 @@
         attachCallMediaListeners(call);
         openActiveCallUI(activePeerId, videoEnabled);
       } catch (err) {
-        console.error('Call initialization failed:', err);
+        alert('Call failed: Device media permissions not granted.');
       }
     }
 
     function handleIncomingMediaCall(call) {
-      incomingCallInstance = call;
       AudioAlerts.playRing();
-
       document.getElementById('incoming-caller-name').innerText = 'Device: ' + call.peer.slice(-6);
-      document.getElementById('incoming-call-type').innerText = call.metadata?.video ? 'Incoming Video Call' : 'Incoming Voice Call';
+      document.getElementById('incoming-call-type').innerText = call.metadata?.video ? 'Video Call' : 'Voice Call';
       incomingCallModal.classList.remove('hidden');
 
       document.getElementById('btn-accept-call').onclick = async () => {
@@ -1109,7 +1248,7 @@
           attachCallMediaListeners(call);
           openActiveCallUI(call.peer, isVideo);
         } catch (e) {
-          console.error('Answering failed', e);
+          alert('Could not answer call with media.');
         }
       };
 
@@ -1122,22 +1261,15 @@
 
     function attachCallMediaListeners(call) {
       activeMediaCall = call;
-
       call.on('stream', (remoteStream) => {
         remoteVideo.srcObject = remoteStream;
       });
-
-      call.on('close', () => {
-        endCall();
-      });
-
-      call.on('error', () => {
-        endCall();
-      });
+      call.on('close', () => endCall());
+      call.on('error', () => endCall());
     }
 
     function openActiveCallUI(peerId, isVideo) {
-      document.getElementById('active-call-peer-name').innerText = 'In Call with ' + peerId;
+      document.getElementById('active-call-peer-name').innerText = 'Call with ' + peerId;
       activeCallOverlay.classList.remove('hidden');
 
       callSeconds = 0;
@@ -1168,7 +1300,6 @@
     document.getElementById('btn-start-voice-call').addEventListener('click', () => startCall(false));
     document.getElementById('btn-start-video-call').addEventListener('click', () => startCall(true));
 
-    // Mic & Camera Toggle in call
     document.getElementById('btn-toggle-mic').addEventListener('click', function() {
       if (localStream) {
         const audioTrack = localStream.getAudioTracks()[0];
@@ -1193,7 +1324,7 @@
       activeCallOverlay.classList.add('hidden');
     });
 
-    // Add Peer Modal Logic
+    // Add Peer Modal
     const modalAddPeer = document.getElementById('modal-add-peer');
     const inputPeerName = document.getElementById('input-peer-name');
     const inputPeerId = document.getElementById('input-peer-id');
@@ -1233,21 +1364,17 @@
       await dbSaveContact(contact);
       modalAddPeer.classList.add('hidden');
 
-      // Initiate WebRTC DataConnection
       try {
         const conn = peer.connect(peerId, { reliable: true });
         setupDataConnection(conn);
-      } catch (e) {
-        console.warn('Direct connect error', e);
-      }
+      } catch (e) {}
 
       await renderContactsList();
       selectChatPeer(contact);
     });
 
-    // Copy device ID button
+    // Copy Device ID
     document.getElementById('btn-copy-device-id').addEventListener('click', function() {
-      // execCommand fallback safe for iFrames
       const dummy = document.createElement('textarea');
       document.body.appendChild(dummy);
       dummy.value = myDeviceId;
@@ -1263,12 +1390,12 @@
       }
     });
 
-    // Search contacts input
+    // Search contacts
     document.getElementById('search-peers-input').addEventListener('input', (e) => {
       renderContactsList(e.target.value);
     });
 
-    // Mobile back button
+    // Mobile back
     document.getElementById('btn-back-to-list').addEventListener('click', () => {
       document.getElementById('sidebar').classList.remove('hidden');
       activeChatEl.classList.add('hidden');
@@ -1278,46 +1405,22 @@
     // Clear chat history
     document.getElementById('btn-clear-chat').addEventListener('click', async () => {
       if (!activePeerId) return;
+      if (!confirm('Clear all chat messages with this peer?')) return;
       await dbClearMessagesForPeer(activePeerId);
       messagesScroll.innerHTML = '';
       renderContactsList();
     });
 
-    if ('serviceWorker' in navigator) {
-      const swCode = `
-        const CACHE_NAME = 'nexus-cache-v1';
-        self.addEventListener('install', (e) => {
-          self.skipWaiting();
-        });
-        self.addEventListener('activate', (e) => {
-          e.waitUntil(clients.claim());
-        });
-        self.addEventListener('fetch', (e) => {
-          e.respondWith(
-            fetch(e.request).catch(() => caches.match(e.request))
-          );
-        });
-      `;
-      const blob = new Blob([swCode], { type: 'application/javascript' });
-      navigator.serviceWorker.register(URL.createObjectURL(blob)).catch((err) => {
-        console.log('SW registration note:', err);
-      });
-    }
-
-    // PWA Install prompt listener
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      const banner = document.getElementById('pwa-install-banner');
-      banner.classList.remove('hidden');
-      banner.onclick = () => {
-        deferredPrompt.prompt();
-        banner.classList.add('hidden');
-      };
+    // Delete contact button inside active chat header
+    document.getElementById('btn-delete-contact').addEventListener('click', () => {
+      if (!activePeerId) return;
+      promptDeleteContact(activePeerId, chatNameEl.innerText);
     });
 
-    // Initialize Database and Peer
+    // Delete Device Data Button
+    document.getElementById('btn-wipe-device').addEventListener('click', wipeAllDeviceData);
+
+    // Initializer
     window.addEventListener('DOMContentLoaded', async () => {
       await initIndexedDB();
       initializePeer();
